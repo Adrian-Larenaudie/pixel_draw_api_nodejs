@@ -42,7 +42,7 @@ V. Les variables d'environnement:
 
 VI. Fichier de connexion à la BDD avec le paquet sequelize:  
     1. installer mysql `npm i mysql` & `npm i mysql2`  
-    2. installer sequelize `npm i sequelize`  
+    2. installer l'ORM sequelize `npm i sequelize`  
     3. dans un file déclarer la connexion à la bdd à l'aide du paquet sequelize `db.config.js`  
 
 VII. Lancement API avec la BDD:  
@@ -62,4 +62,12 @@ DB.authenticate()
     })
 ```
 
+VIII. Création des modèles et de leurs relations:  
+    1. voir dans le fichier db.config.js  
+    2. voir dans le dossier ./models  
 
+IX. Création des routes:  
+    1. voir dans le dossier ./routes  
+
+**!! J'en suis là mais j'ai skip la partie controllers à faire après les relations !!**  
+https://www.youtube.com/watch?v=QqnTxjNQlaQ&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=37&ab_channel=FaisonsLePoint  

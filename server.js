@@ -12,6 +12,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
+/* import des modules de routage */
+const pokemon_router = require('./routes/pokemon.js');
+const type_router = require('./routes/type.js');
+
+app.use('/pokemon', pokemon_router);
+app.use('/pokemon', type_router);
+
 /* mise en place du routage */
 app.get('/', (request, response) => {
     response.send(`I'm online. Good Job Bro !`);
@@ -22,7 +29,7 @@ app.get('*', (request, response) => {
 });
 
 /* start serveur avec test de connexion à la BDD */
-DB.authenticate()
+DB.sequelize.authenticate()
     .then(() => {
         console.log(`Database connection OK bro !`);
     })

@@ -14,7 +14,27 @@ let sequelize = new Sequelize(
     }
 );
 
-/* synchronisation des modèles */
-// sequelize.sync();
+/* mise en place des relations */
+const db = {};
 
-module.exports = sequelize;
+db.sequelize = sequelize;
+db.Pokemon = require('./models/pokemon.js')(sequelize);
+db.Type = require('./models/type.js')(sequelize);
+
+/* définition d'une relation many to many */
+db.Pokemon.belongsToMany(db.Type, {
+    through: "pokemon_type",
+    as: "Types",
+    foreignKey: "Pokemon_id",
+});
+db.Type.belongsToMany(db.Pokemon, {
+    through: "pokemon_type",
+    as: "Pokemons",
+    foreignKey: "Type_id",
+});
+
+sequelize.sync((error) => {
+    console.log(`Database sync Error: ${error}`);
+});
+
+module.exports = db; 
