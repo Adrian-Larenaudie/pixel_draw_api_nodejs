@@ -71,6 +71,14 @@ IX. Création des routes:
 
 X. User hashage du mdp:  
     1. installation de bcrypt `npm i bcrypt`  
+    2. voir le fichier ./routes/user.js  
 
-**!! J'en suis là mais j'ai skip la partie controllers à faire après les relations !!**  
-https://www.youtube.com/watch?v=QqnTxjNQlaQ&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=37&ab_channel=FaisonsLePoint  
+**Conclusion:**  
+Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
+On retrouvera des routes des controlles et des modèles  
+La BDD est en sql on utilise un ORM sequelize 
+Le server est géré à l'aide du module express  
+bcrypt permet de hash les mdp  
+Le paquet dotenv permet de gérer les variable d'environnement  
+
+https://www.youtube.com/watch?v=VeIV4NVarZk&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=14&ab_channel=FaisonsLePoint   

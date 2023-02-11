@@ -4,7 +4,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 
 const DB = require('../db.config.js');
-const User = DB.User;
+let User = DB.User;
 
 /* récupération du routeur d'express */
 let router = express.Router();
@@ -68,7 +68,6 @@ router.put('', (request, response) => {
             message: 'Missing data'
         });
     }
-    
     // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
     User.findOne({where: { pseudo: pseudo }, raw: true})
         .then((User) => {
@@ -79,6 +78,7 @@ router.put('', (request, response) => {
             bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUND))
                 .then((hash) =>{
                     // ajout en BDD du nouveau User
+                    User = DB.User
                     User.create(
                         {
                             pseudo: pseudo,
@@ -89,7 +89,7 @@ router.put('', (request, response) => {
                         return response.json({ message: `User added`})
                     })
                     .catch((error) => {
-                        return response.status(500).json({ message: `Database Error ${error}`});
+                        return response.status(500).json({ message: `Database Error`});
                     })
                 })  
                 .catch((error) => {
@@ -99,7 +99,40 @@ router.put('', (request, response) => {
 });
 
 // modification d'une entré spécifiée par un id
-router.patch('/:id');
+router.patch('/:id', (request, response) => {
+    // on récupère l'id
+    let userId = parseInt(request.params.id);
+    // vérification si le champ id est présent et cohérent
+    if(!userId) {
+        return response.status(400).json({ message: `Missing parameter`});
+    };
+
+    User.findOne({ where: {id: userId}, raw: true})
+        .then((user) => {
+            // vérifier si le user existe
+            if(user === null) {
+                return response.status(404).json({ message: `This user does not exist !` })
+            }
+
+            // modification de l'utilisateur
+            User.update({
+                pseudo: request.body.pseudo,
+                email: request.body.email,
+                password: User.password
+            }, {where: {id: userId}})
+                .then((user) => {
+                    return response.json({ message: `User Updated`});
+                })
+                .catch((error) => {
+                    return response.status(500).json({message: `Database Error`})
+                })
+        })
+        .catch((error) => {
+            return response.status(500).json({
+                message: `Database Error`
+            });
+        });
+});
 
 // suppression d'une entrée spécifié par un id
 router.delete('/:id');
