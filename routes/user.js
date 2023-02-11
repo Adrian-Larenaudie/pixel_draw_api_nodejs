@@ -2,19 +2,19 @@
 const express = require('express');
 
 const DB = require('../db.config.js');
-const Pokemon = DB.Pokemon;
+const User = DB.User;
 
 /* récupération du routeur d'express */
 let router = express.Router();
 
-/* routage de la ressource Pokemon */
+/* routage de la ressource User */
 
 // récupération de toutes les entrées
 router.get('', (request, response) => {
-    Pokemon.findAll()
-        .then((pokemons) => {
+    User.findAll()
+        .then((Users) => {
             response.json({
-                data: pokemons
+                data: Users
             })
         })
         .catch((error) => {
@@ -27,25 +27,25 @@ router.get('', (request, response) => {
 // récupération d'une entrée spécifié par un id
 router.get('/:id', (request, response) => {
     // va stocker false si il ne s'agit pas d'un number
-    let pokemonId = parseInt(request.params.id);
+    let UserId = parseInt(request.params.id);
 
     // vérification si le champ id est rpésent et cohérent
-    if(!pokemonId) {
+    if(!UserId) {
         return response.status(400).json({
             message: 'Missing parameter'
         });
     }
 
     // récupération du pokémon
-    Pokemon.findOne({where: {id: pokemonId}, raw: true})
-        .then((pokemon) => {
-            // pokemon non trouvé on envoie une 404
-            if(pokemon === null) {
-                return response.status(404).json({message: 'This pokemon does not exist !'})
+    User.findOne({where: {id: UserId}, raw: true})
+        .then((User) => {
+            // User non trouvé on envoie une 404
+            if(User === null) {
+                return response.status(404).json({message: 'This User does not exist !'})
             }
-            // pokemon trouvé on le retourne
+            // User trouvé on le retourne
             return response.json({
-                data: pokemon
+                data: User
             });
         })
         .catch((error) => {
@@ -58,23 +58,23 @@ router.get('/:id', (request, response) => {
 // ajout d'une nouvelle entrée équivalant d'un post
 router.put('', (request, response) => {
     // récupération de chacune des entrées dans la requête
-    const { frenchName, romanjiName, pokedexNumber, imageURL } = request.body;
+    const { pseudo, email, password } = request.body;
 
     // validation des données reçues
-    if(!frenchName || !romanjiName || !pokedexNumber || !imageURL) {
+    if(!pseudo || !email || !password) {
         return response.status(400).json({
             message: 'Missing data'
         });
     }
     
-    // si le nom du pokemon est déjà renseigné dans la BDD on retourne un 409 duplicata
-    Pokemon.findOne({where: { frenchName: frenchName }, raw: true})
-        .then((pokemon) => {
-            if(pokemon !== null) {
-                return response.status(409).json({ message: `The pokemon ${pokemon.frenchName} already exist !`});
+    // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
+    User.findOne({where: { frenchName: frenchName }, raw: true})
+        .then((User) => {
+            if(User !== null) {
+                return response.status(409).json({ message: `The User ${User.pseudo} already exist !`});
             }
-            // ajout en BDD du nouveau pokemon
-            Pokemon.create(
+            // ajout en BDD du nouveau User
+            User.create(
                 {
                     frenchName: frenchName,
                     romanjiName: romanjiName,
@@ -82,7 +82,7 @@ router.put('', (request, response) => {
                     imageURL: imageURL
                 }
             ).then(() => {
-                return response.json({ message: `Pokemon added`})
+                return response.json({ message: `User added`})
             })
             .catch((error) => {
                 return response.status(500).json({ message: `Database Error ${error}`});

@@ -13,11 +13,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 
 /* import des modules de routage */
-const pokemon_router = require('./routes/pokemon.js');
-const type_router = require('./routes/type.js');
+const user_router = require('./routes/user.js');
+const draw_router = require('./routes/draw.js');
 
-app.use('/pokemon', pokemon_router);
-app.use('/pokemon', type_router);
+app.use('/user', user_router);
+app.use('/draw', draw_router);
 
 /* mise en place du routage */
 app.get('/', (request, response) => {

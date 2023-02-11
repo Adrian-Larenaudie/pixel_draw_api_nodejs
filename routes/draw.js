@@ -2,12 +2,12 @@
 const express = require('express');
 
 const DB = require('../db.config.js');
-const Type = DB.Type;
+const Draw = DB.Draw;
 
 /* récupération du routeur d'express */
 let router = express.Router();
 
-/* routage de la ressource Pokemon */
+/* routage de la ressource Draw */
 
 // récupération de toutes les entrées
 router.get('');
