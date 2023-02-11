@@ -1,0 +1,44 @@
+## PROCEDURE
+
+**Sur la base de** https://www.youtube.com/watch?v=iCZcE-JKbyY&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=1&ab_channel=FaisonsLePoint  
+
+I. Il s'agit de développer une petite API node js theme pokémon 1ere génération   
+
+II. Mise en place:
+    1. initialisation du projet node `npm init -y`  
+    2. installation de express et cors `npm i express cors`    
+    3. à la racine création file `server.js`  
+    4. une fois paramétré pour exécuter le fichier `node server.js`  
+
+III. Mise en place de nodemon:
+    1. installation de nodemon uniquement pour le mode dev `npm i nodemon --save-dev`     
+    2. nodemon permet de traquer les modifications apportées sur le projet et met à jour automatiquement sur le server local  
+    3. enlever un paquet `npm remove <nomDuPaquet>`  
+    4. lancer le serveur avec nodemon `nodemon server.js`  
+    5. si cette erreur `nodemon : Impossible de charger le fichier C:\Users\Adrian\AppData\Roaming\npm\nodemon.ps1` supprimer le fichier nodemon.ps1  
+
+IV. Package.json:  
+    1. création de scripts  
+```json
+"scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+},
+```
+.
+    2. lancer `npm run dev`  
+
+V. Les variables d'environnement:  
+    1. installation du paquet dotenv `npm i dotenv`  
+    2. création d'un file .env et d'une copie d'exemple .env.exemple  
+    3. création d'un file .gitignore ajout de `.env` & `/node_modules` dans ce fichier  
+    4. pour avoir accès aux variables d'environnements on modifie le script:
+```json
+"scripts": {
+    "start": "node -r dotenv/config server.js",
+    "dev": "nodemon -r dotenv/config server.js"
+},
+```
+. 
+    5. pour accéder aux variables d'environnement dans le code `process.env.<nomDeLaVariable>`  
+
