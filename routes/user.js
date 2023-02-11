@@ -1,6 +1,8 @@
 /* import des modules nécessaires */
 const express = require('express');
 
+const bcrypt = require('bcrypt');
+
 const DB = require('../db.config.js');
 const User = DB.User;
 
@@ -36,7 +38,7 @@ router.get('/:id', (request, response) => {
         });
     }
 
-    // récupération du pokémon
+    // récupération du user
     User.findOne({where: {id: UserId}, raw: true})
         .then((User) => {
             // User non trouvé on envoie une 404
@@ -68,25 +70,31 @@ router.put('', (request, response) => {
     }
     
     // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
-    User.findOne({where: { frenchName: frenchName }, raw: true})
+    User.findOne({where: { pseudo: pseudo }, raw: true})
         .then((User) => {
             if(User !== null) {
                 return response.status(409).json({ message: `The User ${User.pseudo} already exist !`});
             }
-            // ajout en BDD du nouveau User
-            User.create(
-                {
-                    frenchName: frenchName,
-                    romanjiName: romanjiName,
-                    pokedexNumber: pokedexNumber,
-                    imageURL: imageURL
-                }
-            ).then(() => {
-                return response.json({ message: `User added`})
-            })
-            .catch((error) => {
-                return response.status(500).json({ message: `Database Error ${error}`});
-            })
+
+            bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUND))
+                .then((hash) =>{
+                    // ajout en BDD du nouveau User
+                    User.create(
+                        {
+                            pseudo: pseudo,
+                            email: email,
+                            password: hash
+                        })
+                    .then(() => {
+                        return response.json({ message: `User added`})
+                    })
+                    .catch((error) => {
+                        return response.status(500).json({ message: `Database Error ${error}`});
+                    })
+                })  
+                .catch((error) => {
+                    return response.status(500).json({ message: `Hash Process Error` });
+                });
         });
 });
 

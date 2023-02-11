@@ -69,5 +69,8 @@ VIII. Création des modèles et de leurs relations:
 IX. Création des routes:  
     1. voir dans le dossier ./routes  
 
+X. User hashage du mdp:  
+    1. installation de bcrypt `npm i bcrypt`  
+
 **!! J'en suis là mais j'ai skip la partie controllers à faire après les relations !!**  
 https://www.youtube.com/watch?v=QqnTxjNQlaQ&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=37&ab_channel=FaisonsLePoint  
