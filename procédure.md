@@ -79,7 +79,17 @@ XI. JWT Json Web Token:
     3. création d'un fichier auth.js dans les routes  
 
 XII. Ajout de middleware:  
-    1. 
+    1. principe: une fonction qui va s'exécuter entre l'envoi de la requête et le retour  
+    2. express vient avec la méthode next() qui permet de gérer le passage de la fonction du middleware vers la callback sur une route  
+    3. il est possible de déclarer un middleware pour toutes les routes d'un même fichier:    
+```js
+/* middleware pour loguer la date sur toutes les routes de ce fichier */
+router.use((reuqest, response, next) => {
+    const event = new Date();
+    console.log(event.toString());
+    next();
+})
+```
 
 **Conclusion:**  
 Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
