@@ -1,8 +1,6 @@
 /* import des modules nécessaires */
 const express = require('express');
-
 const bcrypt = require('bcrypt');
-
 const DB = require('../db.config.js');
 let User = DB.User;
 
@@ -135,6 +133,24 @@ router.patch('/:id', (request, response) => {
 });
 
 // suppression d'une entrée spécifié par un id
-router.delete('/:id');
+router.delete('/:id', (request, response) => {
+    // on récupère l'id
+    let userId = parseInt(request.params.id);
+    // vérification si le champ id est présent et cohérent
+    if(!userId) {
+        return response.status(400).json({ message: `Missing parameter`});
+    };
+
+    // suppression de l'utilisateur
+    User.destroy({ where: { id: userId }, force: true })
+        .then(() => {
+            return response.status(204).json({});
+        })
+        .catch((error) => {
+            return response.status(500).json({
+                message: `Database Error`
+            });
+        });
+});
 
 module.exports = router;

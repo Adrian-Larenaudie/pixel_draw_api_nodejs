@@ -20,10 +20,7 @@ module.exports = (sequelize) => {
             defaultValue: '',
             allowNull: false,
         },
-    }, { paraniod: true }); // ici pour faire du soft delete*
+    });
 
     return Draw;
 };
-
-// soft delete* c'est lorsqu'on permet la récupération d'une données supprimées
-// exemple sous windows on envoie les données supprimées dasn la corbeille ce qui permet une récupération  
