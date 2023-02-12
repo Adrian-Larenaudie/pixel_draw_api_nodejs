@@ -1,7 +1,6 @@
 /* import des modules nécessaires */
 const express = require('express');
 const userController = require('../controllers/userController.js');
-
 const checkJwtMiddleware = require('../middleware/checkJwt.js');
 
 /* récupération du routeur d'express */

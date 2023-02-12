@@ -7,28 +7,25 @@ let User = DB.User;
 /* récupération du routeur d'express */
 let router = express.Router();
 
-
 // récupération de toutes les entrées
-exports.getAllUsers = (request, response) => {
-    User.findAll()
-        .then((Users) => {
-            response.json({
-                data: Users
-            })
-        })
-        .catch((error) => {
-            res.status(500).json({
-                message: 'Database Error'
-            })
-        });
+exports.getAllUsers = async (request, response) => {
+
+    try {
+        const users = await User.findAll();
+        return response.json({data: users});
+    }
+    catch(error) {
+        return response.status(500).json({ message: 'Database Error' })
+    }
+
 };
 
 // récupération d'une entrée spécifié par un id
-exports.getUser = (request, response) => {
+exports.getUser = async (request, response) => {
     // va stocker false si il ne s'agit pas d'un number
     let UserId = parseInt(request.params.id);
 
-    // vérification si le champ id est rpésent et cohérent
+    // vérification si le champ id est présent et cohérent
     if(!UserId) {
         return response.status(400).json({
             message: 'Missing parameter'
@@ -36,63 +33,50 @@ exports.getUser = (request, response) => {
     }
 
     // récupération du user
-    User.findOne({where: {id: UserId}, raw: true})
-        .then((User) => {
-            // User non trouvé on envoie une 404
-            if(User === null) {
-                return response.status(404).json({message: 'This User does not exist !'})
-            }
-            // User trouvé on le retourne
-            return response.json({
-                data: User
-            });
-        })
-        .catch((error) => {
-            return response.status(500).json({
-                message: 'Database Error'
-            });
-        });
+    try {
+        const user = await User.findOne({where: {id: UserId}, raw: true});
+        // User non trouvé on envoie une 404
+        if(user === null) {
+            return response.status(404).json({ message: `This User does not exist !` })
+        }
+        return response.json({data: user});
+    }
+    catch(error) {
+        return response.status(500).json({ message: 'Database Error' })
+    }
 };
 
 // ajout d'une nouvelle entrée équivalant d'un post
-exports.createUser = (request, response) => {
+exports.createUser = async (request, response) => {
     // récupération de chacune des entrées dans la requête
     const { pseudo, email, password } = request.body;
 
     // validation des données reçues
     if(!pseudo || !email || !password) {
-        return response.status(400).json({
-            message: 'Missing data'
-        });
+        return response.status(400).json({ message: 'Missing data' });
     }
-    // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
-    User.findOne({where: { pseudo: pseudo }, raw: true})
-        .then((User) => {
-            if(User !== null) {
-                return response.status(409).json({ message: `The User ${User.pseudo} already exist !`});
-            }
 
-            bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUND))
-                .then((hash) =>{
-                    // ajout en BDD du nouveau User
-                    User = DB.User
-                    User.create(
-                        {
-                            pseudo: pseudo,
-                            email: email,
-                            password: hash
-                        })
-                    .then(() => {
-                        return response.json({ message: `User added`})
-                    })
-                    .catch((error) => {
-                        return response.status(500).json({ message: `Database Error`});
-                    })
-                })  
-                .catch((error) => {
-                    return response.status(500).json({ message: `Hash Process Error` });
-                });
-        });
+    // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
+    try {
+        const user = await User.findOne({where: { pseudo: pseudo }, raw: true});
+        // User non trouvé on envoie une 404
+        if(user !== null) {
+            return response.status(409).json({ message: `The User ${pseudo} already exist !`});
+        }
+
+        // hashage du mdp
+        const hash = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUND));
+
+        // ajout en BDD du nouveau User
+        let newUser = await User.create({pseudo: pseudo, email: email, password: hash });
+        return response.json({ message: `User added`, data: newUser });
+    }
+    catch(error) {
+        if(error.name == 'SequelizeDatabaseError') {
+            return response.status(500).json({ message: 'Database Error' });
+        }
+        return response.status(500).json({ message: `Hash Process Error` });
+    }
 };
 
 // modification d'une entré spécifiée par un id
@@ -146,8 +130,6 @@ exports.destroyUser = (request, response) => {
             return response.status(204).json({});
         })
         .catch((error) => {
-            return response.status(500).json({
-                message: `Database Error`
-            });
+            return response.status(500).json({ message: `Database Error` });
         });
 };
