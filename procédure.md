@@ -73,6 +73,14 @@ X. User hashage du mdp:
     1. installation de bcrypt `npm i bcrypt`  
     2. voir le fichier ./routes/user.js  
 
+XI. JWT Json Web Token:  
+    1. https://jwt.io/ si on colle le token sur ce site on obtient les information qui y sont présentes  
+    2. paquet utile `npm i jsonwebtoken`  
+    3. création d'un fichier auth.js dans les routes  
+
+XII. Ajout de middleware:  
+    1. 
+
 **Conclusion:**  
 Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
 On retrouvera des routes des controlles et des modèles  

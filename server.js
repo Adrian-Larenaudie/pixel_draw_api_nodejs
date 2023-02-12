@@ -16,8 +16,13 @@ app.use(express.urlencoded({ extended: true}));
 const user_router = require('./routes/user.js');
 const draw_router = require('./routes/draw.js');
 
+const auth_router = require('./routes/auth.js');
+
+/* ajout des routes au server express app */
 app.use('/user', user_router);
 app.use('/draw', draw_router);
+
+app.use('/auth', auth_router);
 
 /* mise en place du routage */
 app.get('/', (request, response) => {
