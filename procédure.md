@@ -97,6 +97,10 @@ XIII. Création de controllers et modification des méthodes de controller en as
 XIV. Création des méthodes de controllers pour gérer la table dessin:  
     1. utilisation du token passé dans les headers pour associé la création de dessin avec l'id d'un user  
 
+XV. Gestion des erreurs:  
+    1. la lever d'erreur se déclenche lorsqu'on utilise le keyword `throw` suivit de `new Error('le message de l\'erreur')`  
+    2. 
+
 **Résumé:**  
 Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
 On retrouvera des routes des controlles et des modèles  
@@ -105,4 +109,4 @@ Le server est géré à l'aide du module express
 bcrypt permet de hash les mdp  
 Le paquet dotenv permet de gérer les variable d'environnement  
 
-https://www.youtube.com/watch?v=rrGGng8mocs&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=28&ab_channel=FaisonsLePoint  
+https://www.youtube.com/watch?v=DexEFdDrRjA&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=29&ab_channel=FaisonsLePoint  
