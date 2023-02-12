@@ -6,7 +6,6 @@ let Draw = DB.Draw;
 /* récupération du routeur d'express */
 let router = express.Router();
 
-
 // récupération de toutes les entrées liées au user
 exports.getAllUserDraws = async (request, response) => {
     try {
@@ -62,7 +61,7 @@ exports.updateDraw = async (request, response) => {
     const { name, data } = request.body;
 
     // vérification de la validité des variables du body
-    if(!name || !data) {
+    if(!name || !data || !drawId) {
         return response.status(400).json({ message: `Missing data` });
     }
 
@@ -89,7 +88,32 @@ exports.updateDraw = async (request, response) => {
 };
 
 // suppression d'une entrée spécifié par un id
-exports.destroyDraw = (request, response) => {
-    console.log(request.decodedToken);
-    return true
+exports.destroyDraw = async (request, response) => {
+    // on récupère l'id du dessin
+    let drawId = parseInt(request.params.id);
+
+    // vérification si le champ id est présent et cohérent
+    if(!drawId) {
+        return response.status(400).json({ message: `Missing parameter`});
+    };
+
+    // vérifiacation de l'existence du dessin
+    try {
+        // on vérifie si le dessin existe
+        const draw = await Draw.findOne({ where: { id: drawId, user_id: request.decodedToken.id }, raw: true});
+
+        // si draw non trouvé on envoit une 404
+        if(draw === null) {
+            return response.status(409).json({ message: `This draw does not exist` });
+        }
+
+        // sinon suppression en BDD du dessin
+        Draw.destroy({ where: {id: drawId}, force: true });
+
+        // retour d'un 204 pour coller avec la convention API REST
+        return response.status(204).json({});
+    }
+    catch(error) {
+        return response.status(500).json({ message: `Database Error` });
+    }
 };
