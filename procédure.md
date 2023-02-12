@@ -91,6 +91,9 @@ router.use((reuqest, response, next) => {
 })
 ```
 
+XIII. Création de controllers et modification des méthodes de controller en async await:  
+    1. voir dans le dossier ./controllers  
+
 **Conclusion:**  
 Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
 On retrouvera des routes des controlles et des modèles  
@@ -99,4 +102,4 @@ Le server est géré à l'aide du module express
 bcrypt permet de hash les mdp  
 Le paquet dotenv permet de gérer les variable d'environnement  
 
-https://www.youtube.com/watch?v=VeIV4NVarZk&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=14&ab_channel=FaisonsLePoint   
+https://www.youtube.com/watch?v=rrGGng8mocs&list=PLwJWw4Pbl4w_oHjPIjkdVtwLeQECK08jv&index=28&ab_channel=FaisonsLePoint  
