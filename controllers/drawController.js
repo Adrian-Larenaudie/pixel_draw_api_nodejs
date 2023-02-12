@@ -22,7 +22,7 @@ exports.getAllUserDraws = async (request, response) => {
         return response.json({ data: draws });
     }
     catch(error) {
-        return response.status(500).json({ message: `Database Error ${error}` });
+        return response.status(500).json({ message: `Database Error` });
     }
 };
 
@@ -49,14 +49,43 @@ exports.createDraw = async (request, response) => {
         return response.json({ message: `Draw added`, data: newDraw });
     }
     catch(error) {
-        return response.status(500).json({ message: `Database Error ${error}` });
+        return response.status(500).json({ message: `Database Error` });
     }
 };
 
-// modification d'une entré spécifiée par un id
-exports.updateDraw = (request, response) => {
-    console.log(request.decodedToken);
-    return true
+// mettre à jour une entré spécifiée par un id
+exports.updateDraw = async (request, response) => {
+    // on récupère l'id du dessin
+    let drawId = parseInt(request.params.id);
+
+    // séparation des variables de la requête body
+    const { name, data } = request.body;
+
+    // vérification de la validité des variables du body
+    if(!name || !data) {
+        return response.status(400).json({ message: `Missing data` });
+    }
+
+    // vérifiacation de l'existence du dessin
+    try {
+        // on vérifie si le dessin existe
+        const draw = await Draw.findOne({ where: { id: drawId, user_id: request.decodedToken.id }, raw: true});
+
+        // si draw non trouvé on envoit une 404
+        if(draw === null) {
+            return response.status(409).json({ message: `This draw does not exist` });
+        }
+
+        // sinon modification en BDD du dessin
+        Draw.update({name: name, data: JSON.stringify(data), user_id: request.decodedToken.id }, {where: {id: drawId}});
+
+        // message de retour sur un succès
+        return response.json({ message: `Draw updated` });
+    }
+    catch(error) {
+        return response.status(500).json({ message: `Database Error` });
+    }
+
 };
 
 // suppression d'une entrée spécifié par un id
