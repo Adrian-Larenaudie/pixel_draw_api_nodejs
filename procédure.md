@@ -94,7 +94,10 @@ router.use((reuqest, response, next) => {
 XIII. Création de controllers et modification des méthodes de controller en async await:  
     1. voir dans le dossier ./controllers  
 
-**Conclusion:**  
+XIV. Création des méthodes de controllers pour gérer la table dessin:  
+    1. utilisation du token passé dans les headers pour associé la création de dessin avec l'id d'un user  
+
+**Résumé:**  
 Cette API fonctionne sur la base d'une API REST avec un architecture MVC  
 On retrouvera des routes des controlles et des modèles  
 La BDD est en sql on utilise un ORM sequelize 

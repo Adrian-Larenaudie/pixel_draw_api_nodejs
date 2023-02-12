@@ -8,16 +8,26 @@ let router = express.Router();
 
 
 // récupération de toutes les entrées liées au user
-exports.getAllUserDraws = (request, response) => {
-    // on veut récupérer tous les dessins liés à un user
-    console.log(request.decodedToken);
-    return response.json({ message: true });
+exports.getAllUserDraws = async (request, response) => {
+    try {
+        // on vérifie si le dessin n'existe pas déjà
+        const draws = await Draw.findAll({ where: { user_id: request.decodedToken.id }, raw: true});
+
+        // si il n'y a aucun dessin on renvoit un not found 404
+        if(draws.length === 0) {
+            return response.status(404).json({ message: `No draws for user: ${request.decodedToken.pseudo}` });
+        }
+
+        // sinon on retourne la liste des desins
+        return response.json({ data: draws });
+    }
+    catch(error) {
+        return response.status(500).json({ message: `Database Error ${error}` });
+    }
 };
 
 // ajout d'une nouvelle entrée équivalant d'un post
 exports.createDraw = async (request, response) => {
-    // on veut ajouter un dessin lié au user du jwt token
-    console.log(request.decodedToken);
     // récupération des valeurs du body
     const { name, data } = request.body;
 
