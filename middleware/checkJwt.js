@@ -31,6 +31,10 @@ const checkJwtMiddleware = (request, response, next) => {
         if(error) {
             return response.status(401).json({ message: `Bad token`});
         }
+
+        // on va ajouter le decodage du JWT dans la requête pour l'utiliser dans certaines méthodes de nos controllers
+        request.decodedToken = decodedToken;
+        
         // si on passe le test alors on peut passer à la suite le middleware est passé avec succès
         next();
     });

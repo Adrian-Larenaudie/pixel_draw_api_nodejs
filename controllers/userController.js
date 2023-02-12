@@ -9,7 +9,6 @@ let router = express.Router();
 
 // récupération de toutes les entrées
 exports.getAllUsers = async (request, response) => {
-
     try {
         const users = await User.findAll();
         return response.json({data: users});
@@ -58,8 +57,10 @@ exports.createUser = async (request, response) => {
 
     // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
     try {
+        // on va vérifierr si le user n'existe pas déjà
         const user = await User.findOne({where: { pseudo: pseudo }, raw: true});
-        // User non trouvé on envoie une 404
+
+        // si le user existe on renvoit un 409
         if(user !== null) {
             return response.status(409).json({ message: `The User ${pseudo} already exist !`});
         }
@@ -88,6 +89,7 @@ exports.updateUser = (request, response) => {
         return response.status(400).json({ message: `Missing parameter`});
     };
 
+    // on va rechercher le user pour savoir si il existe
     User.findOne({ where: {id: userId}, raw: true})
         .then((user) => {
             // vérifier si le user existe
@@ -95,7 +97,7 @@ exports.updateUser = (request, response) => {
                 return response.status(404).json({ message: `This user does not exist !` })
             }
 
-            // modification de l'utilisateur
+            // sinon on peut faire la modification de l'utilisateur
             User.update({
                 pseudo: request.body.pseudo,
                 email: request.body.email,
@@ -109,9 +111,7 @@ exports.updateUser = (request, response) => {
                 })
         })
         .catch((error) => {
-            return response.status(500).json({
-                message: `Database Error`
-            });
+            return response.status(500).json({ message: `Database Error` });
         });
 };
 
