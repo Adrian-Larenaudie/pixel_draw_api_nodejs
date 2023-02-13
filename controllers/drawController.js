@@ -3,10 +3,8 @@ const express = require('express');
 const DB = require('../db.config.js');
 let Draw = DB.Draw;
 
-/* récupération du routeur d'express */
-let router = express.Router();
+/* Controller d'intéraction avec la table draw */
 
-// récupération de toutes les entrées liées au user
 exports.getAllUserDraws = async (request, response) => {
     try {
         // on vérifie si le dessin n'existe pas déjà
@@ -25,7 +23,6 @@ exports.getAllUserDraws = async (request, response) => {
     }
 };
 
-// ajout d'une nouvelle entrée équivalant d'un post
 exports.createDraw = async (request, response) => {
     // récupération des valeurs du body
     const { name, data } = request.body;
@@ -52,7 +49,6 @@ exports.createDraw = async (request, response) => {
     }
 };
 
-// mettre à jour une entré spécifiée par un id
 exports.updateDraw = async (request, response) => {
     // on récupère l'id du dessin
     let drawId = parseInt(request.params.id);
@@ -87,7 +83,6 @@ exports.updateDraw = async (request, response) => {
 
 };
 
-// suppression d'une entrée spécifié par un id
 exports.destroyDraw = async (request, response) => {
     // on récupère l'id du dessin
     let drawId = parseInt(request.params.id);

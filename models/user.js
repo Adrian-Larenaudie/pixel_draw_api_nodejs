@@ -1,7 +1,7 @@
 /* import des modules nécessaires */
 const { DataTypes } = require('sequelize');
 
-/* définition d'un modèle */
+/* définition du modèle user */
 module.exports = (sequelize) => {
     const User = sequelize.define('User', {
         // déclaration des champs explicite
@@ -25,6 +25,11 @@ module.exports = (sequelize) => {
         password: {
             type: DataTypes.STRING(100),
             defaultValue: '',
+            allowNull: false,
+        },
+        admin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
             allowNull: false,
         },
     });

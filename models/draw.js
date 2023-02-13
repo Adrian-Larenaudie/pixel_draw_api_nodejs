@@ -1,7 +1,7 @@
 /* import des modules nécessaires */
 const { DataTypes } = require('sequelize');
 
-/* définition d'un modèle */
+/* définition du modèle draw */
 module.exports = (sequelize) => {
     const Draw = sequelize.define('Draw', {
         // déclaration des champs explicite

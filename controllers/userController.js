@@ -4,23 +4,27 @@ const bcrypt = require('bcrypt');
 const DB = require('../db.config.js');
 let User = DB.User;
 
-/* récupération du routeur d'express */
-let router = express.Router();
+/* Controller d'intéraction avec la table user */
 
-// récupération de toutes les entrées
 exports.getAllUsers = async (request, response) => {
-    try {
-        const users = await User.findAll();
-        return response.json({data: users});
+    // si il s'agit d'un admin accès au contenu
+    if(request.isAdmin) {
+        try {
+            const users = await User.findAll();
+            return response.json({data: users});
+        }
+        catch(error) {
+            return response.status(500).json({ message: 'Database Error' })
+        }
     }
-    catch(error) {
-        return response.status(500).json({ message: 'Database Error' })
-    }
+    // si il ne s'agit pas d'un admin retourne une 401 unauthorized
+    return response.status(401).json({ message: 'Unauthorized' })
 
 };
 
-// récupération d'une entrée spécifié par un id
+// TODO gestion des droits
 exports.getUser = async (request, response) => {
+    console.log(request.isAdmin);
     // va stocker false si il ne s'agit pas d'un number
     let UserId = parseInt(request.params.id);
 
@@ -45,13 +49,17 @@ exports.getUser = async (request, response) => {
     }
 };
 
-// ajout d'une nouvelle entrée équivalant d'un post
 exports.createUser = async (request, response) => {
-    // récupération de chacune des entrées dans la requête
-    const { pseudo, email, password } = request.body;
-
+    // récupération de chacune des entrées dans la requête 
+    if(request.isAdmin) {
+        var { pseudo, email, password, admin } = request.body;
+    } else {
+        var { pseudo, email, password } = request.body;
+        var admin = false;
+    }
+    
     // validation des données reçues
-    if(!pseudo || !email || !password) {
+    if(!pseudo || !email || !password || typeof admin === 'undefined') {
         return response.status(400).json({ message: 'Missing data' });
     }
 
@@ -69,7 +77,7 @@ exports.createUser = async (request, response) => {
         const hash = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUND));
 
         // ajout en BDD du nouveau User
-        let newUser = await User.create({pseudo: pseudo, email: email, password: hash });
+        let newUser = await User.create({pseudo: pseudo, email: email, password: hash, admin: admin });
         return response.json({ message: `User added`, data: newUser });
     }
     catch(error) {
@@ -80,8 +88,9 @@ exports.createUser = async (request, response) => {
     }
 };
 
-// modification d'une entré spécifiée par un id
+// TODO gestion des droits
 exports.updateUser = (request, response) => {
+    console.log(request.isAdmin);
     // on récupère l'id
     let userId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
@@ -115,8 +124,9 @@ exports.updateUser = (request, response) => {
         });
 };
 
-// suppression d'une entrée spécifié par un id
+// TODO gestion des droits
 exports.destroyUser = (request, response) => {
+    console.log(request.isAdmin);
     // on récupère l'id
     let userId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
