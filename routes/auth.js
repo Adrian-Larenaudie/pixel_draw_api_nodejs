@@ -30,7 +30,7 @@ router.post('/login', async (request, response) => {
         // on récupère le user en BDD
         const user = await User.findOne({ where: { email: email }, raw: true });
 
-        // vérification si le user existe sinon on renvoit une rerreur
+        // vérification si le user existe sinon on renvoie une rerreur
         if(user === null) {
             return response.status(404).json({message: 'This User does not exist !'})
         }
@@ -38,14 +38,14 @@ router.post('/login', async (request, response) => {
         // vérification du mdp à l'aide de bcrypt le méthode .compare() permet de vérifier si le mdp matche avec le user récupéré en BDD
         const test = await bcrypt.compare(password, user.password);
 
-        // si le résultat du test bcrypt ne correspond pas on renvoit un message mdp invalide
+        // si le résultat du test bcrypt ne correspond pas on renvoie un message mdp invalide
         if(!test) {
             return response.status(401).json({ message: `Password invalid`});
         }
 
         // sinon on va générer un token à l'aide du module jsonwebtoken et de la méthode .sign() qui prend trois paramètres 
         const token = jwt.sign(
-            { id: user.id, pseudo: user.pseudo, email: user.email },
+            { id: user.id, pseudo: user.pseudo, email: user.email, admin : user.admin },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_DURING }
         );

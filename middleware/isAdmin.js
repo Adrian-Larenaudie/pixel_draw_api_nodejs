@@ -30,14 +30,14 @@ const isAdmin = (request, response, next) => {
     // sinon vérification de la validité du token à l'aide de la métode .verify() qui vient avec le module jesonwebtoken
     } else {
         jwt.verify(token, process.env.JWT_SECRET, (error, decodedToken) => {
-            // si il y a une erreur on renvoit isAdmin à false
+            // si il y a une erreur on renvoie isAdmin à false
             if(error) {
                 request.isAdmin = false;
             // sinon si il ne s'agit pas d'un admin
-            } else if (decodedToken.admin) {
-                // on renvoit false
+            } else if (!decodedToken.admin) {
+                // on renvoie false
                 request.isAdmin = false;
-            // enfin si on arrive ici c'est que le user est un admin on renvoit true
+            // enfin si on arrive ici c'est que le user est un admin on renvoie true
             } else {
                 request.isAdmin = true;
             } 

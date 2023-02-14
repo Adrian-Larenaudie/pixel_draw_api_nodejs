@@ -10,7 +10,7 @@ exports.getAllUserDraws = async (request, response) => {
         // on vérifie si le dessin n'existe pas déjà
         const draws = await Draw.findAll({ where: { user_id: request.decodedToken.id }, raw: true});
 
-        // si il n'y a aucun dessin on renvoit un not found 404
+        // si il n'y a aucun dessin on renvoie un not found 404
         if(draws.length === 0) {
             return response.status(404).json({ message: `No draws for user: ${request.decodedToken.pseudo}` });
         }
@@ -35,7 +35,7 @@ exports.createDraw = async (request, response) => {
     try {
         // on vérifie si le dessin n'existe pas déjà
         const draw = await Draw.findOne({ where: { name: name, user_id: request.decodedToken.id }, raw: true});
-        // si draw non trouvé on envoit une 404
+        // si draw non trouvé on envoie une 404
         if(draw !== null) {
             return response.status(409).json({ message: `The Draw ${name} already exist ! Please use another name.`});
         }
@@ -66,7 +66,7 @@ exports.updateDraw = async (request, response) => {
         // on vérifie si le dessin existe
         const draw = await Draw.findOne({ where: { id: drawId, user_id: request.decodedToken.id }, raw: true});
 
-        // si draw non trouvé on envoit une 404
+        // si draw non trouvé on envoie une 404
         if(draw === null) {
             return response.status(409).json({ message: `This draw does not exist` });
         }
@@ -97,7 +97,7 @@ exports.destroyDraw = async (request, response) => {
         // on vérifie si le dessin existe
         const draw = await Draw.findOne({ where: { id: drawId, user_id: request.decodedToken.id }, raw: true});
 
-        // si draw non trouvé on envoit une 404
+        // si draw non trouvé on envoie une 404
         if(draw === null) {
             return response.status(409).json({ message: `This draw does not exist` });
         }

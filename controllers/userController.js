@@ -9,6 +9,7 @@ let User = DB.User;
 exports.getAllUsers = async (request, response) => {
     // si il s'agit d'un admin accès au contenu
     if(request.isAdmin) {
+        console.log(request);
         try {
             const users = await User.findAll();
             return response.json({data: users});
@@ -22,36 +23,36 @@ exports.getAllUsers = async (request, response) => {
 
 };
 
-// TODO gestion des droits
 exports.getUser = async (request, response) => {
-    console.log(request.isAdmin);
-    
-    // ici on veut check si le userId est identique à request.decodedToken.id ou si le user est un admin
-    // dans ce cas on peut retourner le user sans le mdp
-    // sinon on retourne unauthorized
-    
     // va stocker false si il ne s'agit pas d'un number
     let UserId = parseInt(request.params.id);
 
     // vérification si le champ id est présent et cohérent
     if(!UserId) {
-        return response.status(400).json({
-            message: 'Missing parameter'
-        });
+        return response.status(400).json({ message: 'Missing parameter' });
     }
 
-    // récupération du user
-    try {
-        const user = await User.findOne({where: {id: UserId}, raw: true});
-        // User non trouvé on envoie une 404
-        if(user === null) {
-            return response.status(404).json({ message: `This User does not exist !` })
+    // si le userId passé en paramètre est le même que celui du token ou si il s'agit d'un admin
+    if(UserId === request.decodedToken.id || request.decodedToken.admin ) {
+        // récupération du user autorisée
+        try {
+            let user = await User.findOne({where: {id: UserId}, raw: true});
+            // User non trouvé on envoie une 404
+            if(user === null) {
+                return response.status(404).json({ message: `This User does not exist !` })
+            }
+            // on retourne le user sans le MDP
+            user = { id : user.id, pseudo : user.pseudo, admin: user.admin, email : user.email };
+            return response.json({data: user});
         }
-        return response.json({data: user});
-    }
-    catch(error) {
-        return response.status(500).json({ message: 'Database Error' })
-    }
+        catch(error) {
+            return response.status(500).json({ message: 'Database Error' })
+        }
+
+    } else {
+        // sinon on retourne unauthorized
+        return response.status(403).json({ message: 'Unauthorized' });
+    }  
 };
 
 exports.createUser = async (request, response) => {
@@ -73,7 +74,7 @@ exports.createUser = async (request, response) => {
         // on va vérifierr si le user n'existe pas déjà
         const user = await User.findOne({where: { pseudo: pseudo }, raw: true});
 
-        // si le user existe on renvoit un 409
+        // si le user existe on renvoie un 409
         if(user !== null) {
             return response.status(409).json({ message: `The User ${pseudo} already exist !`});
         }
@@ -93,47 +94,70 @@ exports.createUser = async (request, response) => {
     }
 };
 
-// TODO gestion des droits
-exports.updateUser = (request, response) => {
-    console.log(request.isAdmin);
-    
-    // ici pour pouvoir modifier le user il faut passer par un test
-    // si le userId est le même que le request.decodedToken.id & request.decodedToken.admin = false on peut modifier le user mais pas le statut
-    // si le userId est le même que le request.decodedToken.id & request.decodedToken.admin = true on peut modifier le user et son statut
-    // si le userId est différent que le request.decodedToken.id & request.decodedToken.admin = true & user.admin = false on peut modifier le user et son statut
-    // enfin sinon on ne peut pas modifier le user on renvoit unauthorized 
-    
+exports.updateUser = async (request, response) => {
     // on récupère l'id
-    let userId = parseInt(request.params.id);
+    let UserId = parseInt(request.params.id);
+
     // vérification si le champ id est présent et cohérent
-    if(!userId) {
+    if(!UserId) {
         return response.status(400).json({ message: `Missing parameter`});
     };
 
-    // on va rechercher le user pour savoir si il existe
-    User.findOne({ where: {id: userId}, raw: true})
-        .then((user) => {
-            // vérifier si le user existe
-            if(user === null) {
-                return response.status(404).json({ message: `This user does not exist !` })
-            }
+    // à l'aide de l'id on va récupérer le user
+    try {
+        var searchedUser = await User.findOne({where: {id: UserId}, raw: true});
+        // User non trouvé on envoie une 404
+        if(searchedUser === null) {
+            return response.status(404).json({ message: `This User does not exist !` })
+        }
+    }
+    catch(error) {
+        return response.status(500).json({ message: 'Database Error' })
+    }
 
-            // sinon on peut faire la modification de l'utilisateur
-            User.update({
-                pseudo: request.body.pseudo,
-                email: request.body.email,
-                password: User.password
-            }, {where: {id: userId}})
-                .then((user) => {
-                    return response.json({ message: `User Updated`});
-                })
-                .catch((error) => {
-                    return response.status(500).json({message: `Database Error`})
-                })
-        })
-        .catch((error) => {
-            return response.status(500).json({ message: `Database Error` });
-        });
+    // l'utilisateur peux modifier son pseudo et son email
+    if(UserId === request.decodedToken.id) {
+        // récupération de chacune des entrées dans la requête
+        const { pseudo, email } = request.body; 
+        
+        // validation des données reçues
+        if(!pseudo || !email ) {
+            return response.status(400).json({ message: 'Missing data' });
+        }
+        User.update({
+            pseudo: pseudo,
+            email: email,
+        }, {where: {id: UserId}})
+            .then((updatedUser) => {
+                return response.json({ message: `User Updated`});
+            })
+            .catch((error) => {
+                return response.status(500).json({message: `Database Error`})
+            });
+    // un admin peut modifier un autre utilisateur qui n'est pas admin
+    } else if (UserId !== request.decodedToken.id && request.isAdmin && !searchedUser.admin) {
+        // récupération de chacune des entrées dans la requête
+        const { pseudo, email, admin } = request.body; 
+
+        // validation des données reçues
+        if(!pseudo || !email || typeof admin === 'undefined') {
+            return response.status(400).json({ message: 'Missing data' });
+        }
+        User.update({
+            pseudo: pseudo,
+            email: email,
+            admin: admin,
+        }, {where: {id: UserId}})
+            .then((updatedUser) => {
+                return response.json({ message: `User Updated`});
+            })
+            .catch((error) => {
+                return response.status(500).json({message: `Database Error ${error}`})
+            });
+    } else {
+        // sinon on retourne unauthorized
+        return response.status(403).json({ message: 'Unauthorized' });
+    }
 };
 
 // TODO gestion des droits
@@ -143,7 +167,7 @@ exports.destroyUser = (request, response) => {
     // on doit passer par quelques test pour vérifier si on est autorisé à supprimer le compte
     // pour ça il faut d'abord récupérer le user en BDD
     // si le userId === request.decodedToken.id || si le user.admin === false & request.admin === true  on peut supprimer le compte
-    // sinon on renvoit unauthorized
+    // sinon on renvoie unauthorized
     
     // on récupère l'id
     let userId = parseInt(request.params.id);
