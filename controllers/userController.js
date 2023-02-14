@@ -25,6 +25,11 @@ exports.getAllUsers = async (request, response) => {
 // TODO gestion des droits
 exports.getUser = async (request, response) => {
     console.log(request.isAdmin);
+    
+    // ici on veut check si le userId est identique à request.decodedToken.id ou si le user est un admin
+    // dans ce cas on peut retourner le user sans le mdp
+    // sinon on retourne unauthorized
+    
     // va stocker false si il ne s'agit pas d'un number
     let UserId = parseInt(request.params.id);
 
@@ -91,6 +96,13 @@ exports.createUser = async (request, response) => {
 // TODO gestion des droits
 exports.updateUser = (request, response) => {
     console.log(request.isAdmin);
+    
+    // ici pour pouvoir modifier le user il faut passer par un test
+    // si le userId est le même que le request.decodedToken.id & request.decodedToken.admin = false on peut modifier le user mais pas le statut
+    // si le userId est le même que le request.decodedToken.id & request.decodedToken.admin = true on peut modifier le user et son statut
+    // si le userId est différent que le request.decodedToken.id & request.decodedToken.admin = true & user.admin = false on peut modifier le user et son statut
+    // enfin sinon on ne peut pas modifier le user on renvoit unauthorized 
+    
     // on récupère l'id
     let userId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
@@ -127,6 +139,12 @@ exports.updateUser = (request, response) => {
 // TODO gestion des droits
 exports.destroyUser = (request, response) => {
     console.log(request.isAdmin);
+    
+    // on doit passer par quelques test pour vérifier si on est autorisé à supprimer le compte
+    // pour ça il faut d'abord récupérer le user en BDD
+    // si le userId === request.decodedToken.id || si le user.admin === false & request.admin === true  on peut supprimer le compte
+    // sinon on renvoit unauthorized
+    
     // on récupère l'id
     let userId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
