@@ -18,7 +18,7 @@ router.get('', checkJwtMiddleware, isAdminMiddleware, userController.getAllUsers
 router.get('/:id', checkJwtMiddleware, isAdminMiddleware, userController.getUser);
 
 // création d'un user ou admin seul les admins peuvent créer d'autres admins
-router.put('', checkJwtMiddleware, isAdminMiddleware, userController.createUser);
+router.put('', isAdminMiddleware, userController.createUser);
 
 // modification d'un user ou d'un admin seul les admins peuvent modifier d'autres users mais un admin ne peut pas modifier un autre admin
 router.patch('/:id', checkJwtMiddleware, isAdminMiddleware, userController.updateUser);
