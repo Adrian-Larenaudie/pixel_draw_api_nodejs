@@ -69,14 +69,22 @@ exports.createUser = async (request, response) => {
         return response.status(400).json({ message: 'Missing data' });
     }
 
-    // si le nom du User est déjà renseigné dans la BDD on retourne un 409 duplicata
+    // si le nom ou l'email du User est déjà renseigné dans la BDD on retourne un 409 duplicata
     try {
-        // on va vérifierr si le user n'existe pas déjà
-        const user = await User.findOne({where: { pseudo: pseudo }, raw: true});
+        // on va vérifierr si le nom du user n'existe pas déjà
+        let user = await User.findOne({where: { pseudo: pseudo }, raw: true});
 
         // si le user existe on renvoie un 409
         if(user !== null) {
             return response.status(409).json({ message: `The User ${pseudo} already exist !`});
+        }
+        
+        // on va vérifierr si l'email n'existe pas déjà
+        let user = await User.findOne({where: { email: email }, raw: true});
+
+        // si le user existe on renvoie un 409
+        if(user !== null) {
+            return response.status(409).json({ message: `The Email ${email} already used !`});
         }
 
         // hashage du mdp
@@ -163,25 +171,39 @@ exports.updateUser = async (request, response) => {
 // TODO gestion des droits
 exports.destroyUser = (request, response) => {
     console.log(request.isAdmin);
-    
-    // on doit passer par quelques test pour vérifier si on est autorisé à supprimer le compte
-    // pour ça il faut d'abord récupérer le user en BDD
-    // si le userId === request.decodedToken.id || si le user.admin === false & request.admin === true  on peut supprimer le compte
-    // sinon on renvoie unauthorized
-    
     // on récupère l'id
-    let userId = parseInt(request.params.id);
+    let UserId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
-    if(!userId) {
+    if(!UserId) {
         return response.status(400).json({ message: `Missing parameter`});
     };
-
-    // suppression de l'utilisateur
-    User.destroy({ where: { id: userId }, force: true })
-        .then(() => {
-            return response.status(204).json({});
-        })
-        .catch((error) => {
-            return response.status(500).json({ message: `Database Error` });
-        });
+    
+    // à l'aide de l'id on va récupérer le user
+    try {
+        var searchedUser = await User.findOne({where: {id: UserId}, raw: true});
+        // User non trouvé on envoie une 404
+        if(searchedUser === null) {
+            return response.status(404).json({ message: `This User does not exist !` })
+        }
+    }
+    catch(error) {
+        return response.status(500).json({ message: 'Database Error' })
+    }
+    
+    // si le user connecté est le même que l'id passé en paramètre ou 
+    // si le user passé en paramètre n'est pas admin et que le user connecté est admin
+    if (UserId === request.decodedToken.id || (!searchedUser.admin && request.isAdmin)) {
+        // suppression de l'utilisateur
+        User.destroy({ where: { id: UserId }, force: true })
+            .then(() => {
+                return response.status(204).json({});
+            })
+            .catch((error) => {
+                return response.status(500).json({ message: `Database Error` });
+            });    
+    } else {
+        // sinon on retourne unauthorized
+        return response.status(403).json({ message: 'Unauthorized' });
+    }
+    
 };
