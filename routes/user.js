@@ -11,7 +11,7 @@ let router = express.Router();
 
 /* routage de la ressource User */
 
-// récupération de tous les users seulement les admins
+// récupération de tous les users seulement les admins peuvent le faire
 router.get('', checkJwtMiddleware, isAdminMiddleware, userController.getAllUsers);
 
 // récupération d'un user seulement les admins peuvent récupérer d'autres users
