@@ -1,5 +1,4 @@
 /* import des modules nécessaires */
-const express = require('express');
 const DB = require('../db.config.js');
 let Draw = DB.Draw;
 

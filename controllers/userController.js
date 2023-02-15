@@ -1,5 +1,4 @@
 /* import des modules nécessaires */
-const express = require('express');
 const bcrypt = require('bcrypt');
 const DB = require('../db.config.js');
 let User = DB.User;
@@ -80,7 +79,7 @@ exports.createUser = async (request, response) => {
         }
         
         // on va vérifierr si l'email n'existe pas déjà
-        let user = await User.findOne({where: { email: email }, raw: true});
+        user = await User.findOne({where: { email: email }, raw: true});
 
         // si le user existe on renvoie un 409
         if(user !== null) {
@@ -168,9 +167,7 @@ exports.updateUser = async (request, response) => {
     }
 };
 
-// TODO gestion des droits
-exports.destroyUser = (request, response) => {
-    console.log(request.isAdmin);
+exports.destroyUser = async (request, response) => {
     // on récupère l'id
     let UserId = parseInt(request.params.id);
     // vérification si le champ id est présent et cohérent
